@@ -57,7 +57,7 @@ def readMsg(client, target, directory_path, id):
         msg = b""
         while connected:
             try:
-                msg = client.recv(8)
+                msg = client.recv(2048)
                 file.write(msg)
             except socket.timeout:
                 file.seek(0)  # reset cursor
