@@ -39,7 +39,9 @@ def readMsg(client, target, directory_path, id):
             send_command(client)
             readConfirm(client, b'confirm-accio\r\n')
             send_command(client)
-            readConfirm(client, b'confirm-accio-again\r\n\r\n')
+            readConfirm(client, b'confirm-accio-again\r\n\r\n'
+)
+
         except Exception:
             file.write(b'ERROR')
             client.close()
@@ -74,16 +76,14 @@ def main():
         exit(1)
     socket_used.listen(15)
     socket_used.settimeout(10)
-    id = 0
+    id = 1
     connected = True
     while connected:
         try:
-            signal(SIGTERM, handle_signals)
             signal(SIGINT, handle_signals)
             (conn, addr) = socket_used.accept()
             current_thread = Thread(target=readMsg, args=(conn, b'', directory, id))
             current_thread.start()
-            id = id + 1
         except Exception:
             id = id - 1
         id = id + 1
