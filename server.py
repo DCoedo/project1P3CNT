@@ -18,7 +18,6 @@ def readConfirm(client, target):
         try:
             msg += client.recv(1)
         except Exception:
-            sys.stderr.write("ERROR:")
             connected = False
         if msg == target:
             connected = False
@@ -28,12 +27,18 @@ def readConfirm(client, target):
         raise Exception
 
 
+def send_command(client):
+    client.send(b'accio\r\n')
+
+
 # used from previous part
 def readMsg(client, target, directory_path, id):
-    full_path = directory_path + '/' + id + '.file'
+    full_path = directory_path + '/' + str(id) + '.file'
     with open(full_path, 'wb') as file:
         try:
+            send_command(client)
             readConfirm(client, b'confirm-accio\r\n')
+            send_command(client)
             readConfirm(client, b'confirm-accio-again\r\n\r\n')
         except Exception:
             file.write(b'ERROR')
@@ -61,14 +66,14 @@ def readMsg(client, target, directory_path, id):
 def main():
     port, directory = int(sys.argv[1]), sys.argv[2]
     socket_used = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    socket_used.listen(15)
-    socket_used.settimeout(10)
+
     try:
         socket_used.bind(("0.0.0.0", port))
     except Exception:
-        sys.stderr.write('ERROR')
+        sys.stderr.write('ERROR:')
         exit(1)
-
+    socket_used.listen(15)
+    socket_used.settimeout(10)
     id = 0
     connected = True
     while connected:
@@ -82,5 +87,6 @@ def main():
         except Exception:
             id = id - 1
         id = id + 1
+
 
 main()
