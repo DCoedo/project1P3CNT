@@ -1,12 +1,11 @@
 import socket
 import sys
-from signal import SIGINT, SIGTERM, signal
+from signal import SIGINT, signal
 from threading import Thread
 
 
 def handle_signals():
     exit(0)
-
 
 
 # used from previous part
@@ -16,13 +15,18 @@ def readConfirm(client, target):
     msg = b""
     good_message = False
     while connected:
+        msg_bytes = b""
         try:
-            msg += client.recv(1)
+            msg_bytes = client.recv(1)
+            msg += msg_bytes
         except Exception:
             connected = False
         if msg == target:
             connected = False
             good_message = True
+        if len(msg_bytes) == 0:
+            connected = False
+            good_message = False
 
     if good_message is False:
         raise Exception
@@ -85,7 +89,7 @@ def main():
             (conn, addr) = socket_used.accept()
             current_thread = Thread(target=readMsg, args=(conn, b'', directory, id))
             current_thread.start()
-        except Exception:
+        except socket.timeout: # handle only timeout exceptions
             id = id - 1
         id = id + 1
 
