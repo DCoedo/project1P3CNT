@@ -5,7 +5,8 @@ from threading import Thread
 
 
 def handle_signals():
-    exit(1)
+    exit(0)
+
 
 
 # used from previous part
@@ -52,9 +53,9 @@ def readMsg(client, target, directory_path, id):
         msg = b""
         while connected:
             try:
-                msg = client.recv(1024)
+                msg = client.recv(8)
                 file.write(msg)
-            except Exception:
+            except socket.timeout:
                 file.seek(0)  # reset cursor
                 file.truncate(0)  # delete file data so far so that we can write error
                 file.write(b'ERROR')
@@ -62,7 +63,7 @@ def readMsg(client, target, directory_path, id):
             if msg == target:
                 connected = False
         client.close()
-        return 1
+    return 1
 
 
 def main():
@@ -74,7 +75,7 @@ def main():
     except Exception:
         sys.stderr.write('ERROR:')
         exit(1)
-    socket_used.listen(15)
+    socket_used.listen(10)
     socket_used.settimeout(10)
     id = 1
     connected = True
